@@ -22,6 +22,17 @@ new class extends Component {
         }
     }
 
+    public function toggleAll(): void
+    {
+        $allPermissions = Permission::all()->pluck('name')->toArray();
+
+        if (count($this->selectedPermissions) === count($allPermissions)) {
+            $this->selectedPermissions = [];
+        } else {
+            $this->selectedPermissions = $allPermissions;
+        }
+    }
+
     public function save(): void
     {
         $validated = $this->validate([
@@ -67,7 +78,12 @@ new class extends Component {
         />
 
         <div>
-            <label class="mb-3 block text-sm font-medium text-zinc-700 dark:text-zinc-300">{{ __('Permissions') }}</label>
+            <div class="mb-3 flex items-center justify-between">
+                <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">{{ __('Permissions') }}</label>
+                <flux:button size="sm" variant="ghost" wire:click="toggleAll" type="button">
+                    {{ count($selectedPermissions) === count($permissions) ? __('Deselect All') : __('Select All') }}
+                </flux:button>
+            </div>
             <div class="space-y-2 rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
                 @forelse($permissions as $permission)
                     <flux:checkbox

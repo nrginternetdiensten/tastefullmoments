@@ -25,7 +25,7 @@ class ColorSchemeSeeder extends Seeder
             ColorScheme::create([
                 'name' => ucfirst($color).' Licht',
                 'bg_class' => "bg-{$color}-100",
-                'text_class' => "text-{$color}-800",
+                'text_class' => "text-{$color}-700",
                 'active' => true,
                 'list_order' => $order++,
             ]);
@@ -42,7 +42,7 @@ class ColorSchemeSeeder extends Seeder
             // Donkere variant
             ColorScheme::create([
                 'name' => ucfirst($color).' Donker',
-                'bg_class' => "bg-{$color}-800",
+                'bg_class' => "bg-{$color}-700",
                 'text_class' => "text-{$color}-100",
                 'active' => true,
                 'list_order' => $order++,
