@@ -11,7 +11,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Register Laravel Boost only in local environment
+        if ($this->app->environment('local')) {
+            if (class_exists(\Laravel\Boost\BoostServiceProvider::class)) {
+                $this->app->register(\Laravel\Boost\BoostServiceProvider::class);
+            }
+        }
     }
 
     /**
