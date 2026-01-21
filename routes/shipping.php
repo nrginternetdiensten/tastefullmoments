@@ -4,9 +4,9 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Volt::route('/shipping-items', 'shipping-items.index')
-        ->name('shipping-items.index')
-        ->middleware('can:shipping-items.index');
+    Route::get('/shipping-items', function () {
+        return view('pages.shipping-items.index');
+    })->middleware('can:shipping-items.index')->name('shipping-items.index');
 
     Volt::route('/shipping-items/create', 'shipping-items.form')
         ->name('shipping-items.create')
