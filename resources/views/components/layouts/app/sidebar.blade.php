@@ -11,62 +11,36 @@
             </flux:sidebar.header>
 
             <flux:sidebar.nav>
-                <flux:sidebar.group :heading="__('Platform')" class="grid">
-                    <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                        {{ __('Dashboard') }}
-                    </flux:sidebar.item>
-                    <flux:sidebar.item icon="building-office-2" :href="route('accounts.index')" :current="request()->routeIs('accounts.*')" wire:navigate>
-                        {{ __('Accounts') }}
-                    </flux:sidebar.item>
-                    <flux:sidebar.item icon="folder" :href="route('email-folders.index')" :current="request()->routeIs('email-folders.*')" wire:navigate>
-                        {{ __('Email Folders') }}
-                    </flux:sidebar.item>
-                    <flux:sidebar.item icon="envelope" :href="route('email-items.index')" :current="request()->routeIs('email-items.*')" wire:navigate>
-                        {{ __('Email Items') }}
-                    </flux:sidebar.item>
-                    <flux:sidebar.item icon="calculator" :href="route('invoice-taxes.index')" :current="request()->routeIs('invoice-taxes.*')" wire:navigate>
-                        {{ __('Invoice Taxes') }}
-                    </flux:sidebar.item>
-                    <flux:sidebar.item icon="tag" :href="route('ticket-statuses.index')" :current="request()->routeIs('ticket-statuses.*')" wire:navigate>
-                        {{ __('Ticket Statuses') }}
-                    </flux:sidebar.item>
-                    <flux:sidebar.item icon="chat-bubble-left-right" :href="route('ticket-channels.index')" :current="request()->routeIs('ticket-channels.*')" wire:navigate>
-                        {{ __('Ticket Channels') }}
-                    </flux:sidebar.item>
-                    <flux:sidebar.item icon="rectangle-stack" :href="route('ticket-types.index')" :current="request()->routeIs('ticket-types.*')" wire:navigate>
-                        {{ __('Ticket Types') }}
-                    </flux:sidebar.item>
-                    <flux:sidebar.item icon="swatch" :href="route('color-schemes.index')" :current="request()->routeIs('color-schemes.*')" wire:navigate>
-                        {{ __('Color Schemes') }}
-                    </flux:sidebar.item>
-                </flux:sidebar.group>
-
-                <flux:sidebar.group :heading="__('Support')" class="grid">
-                    <flux:sidebar.item icon="ticket" :href="route('tickets.index')" :current="request()->routeIs('tickets.*')" wire:navigate>
-                        {{ __('Tickets') }}
-                    </flux:sidebar.item>
-                </flux:sidebar.group>
-
-                <flux:sidebar.group :heading="__('Financieel')" class="grid">
-                    <flux:sidebar.item icon="document-text" :href="route('invoices.index')" :current="request()->routeIs('invoices.*')" wire:navigate>
-                        {{ __('Facturen') }}
-                    </flux:sidebar.item>
-                    <flux:sidebar.item icon="tag" :href="route('invoice-statuses.index')" :current="request()->routeIs('invoice-statuses.*')" wire:navigate>
-                        {{ __('Factuur Statussen') }}
-                    </flux:sidebar.item>
-                </flux:sidebar.group>
-
-                <flux:sidebar.group :heading="__('Access Control')" class="grid">
-                    <flux:sidebar.item icon="users" :href="route('users.index')" :current="request()->routeIs('users.*')" wire:navigate>
-                        {{ __('Users') }}
-                    </flux:sidebar.item>
-                    <flux:sidebar.item icon="shield-check" :href="route('roles.index')" :current="request()->routeIs('roles.*')" wire:navigate>
-                        {{ __('Roles') }}
-                    </flux:sidebar.item>
-                    <flux:sidebar.item icon="key" :href="route('permissions.index')" :current="request()->routeIs('permissions.*')" wire:navigate>
-                        {{ __('Permissions') }}
-                    </flux:sidebar.item>
-                </flux:sidebar.group>
+                <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
+                    {{ __('Dashboard') }}
+                </flux:sidebar.item>
+                <flux:sidebar.item icon="squares-plus" :href="route('modules.index')" :current="request()->routeIs('modules.*')" wire:navigate>
+                    {{ __('Modules') }}
+                </flux:sidebar.item>
+                <flux:sidebar.item icon="users" :href="route('accounts.index')" :current="request()->routeIs('accounts.*')" wire:navigate>
+                    {{ __('Accounts') }}
+                </flux:sidebar.item>
+                <flux:sidebar.item icon="document-text" :href="route('lead-items.index')" :current="request()->routeIs('lead-items.*')" wire:navigate>
+                    {{ __('Leads') }}
+                </flux:sidebar.item>
+                <flux:sidebar.item icon="ticket" :href="route('tickets.index')" :current="request()->routeIs('tickets.*')" wire:navigate>
+                    {{ __('Support') }}
+                </flux:sidebar.item>
+                <flux:sidebar.item icon="question-mark-circle" :href="route('faq-categories.index')" :current="request()->routeIs('faq-categories.*') || request()->routeIs('faqs.*')" wire:navigate>
+                    {{ __('FAQ') }}
+                </flux:sidebar.item>
+                <flux:sidebar.item icon="document-text" :href="route('invoices.index')" :current="request()->routeIs('invoices.*')" wire:navigate>
+                    {{ __('Facturen') }}
+                </flux:sidebar.item>
+                <flux:sidebar.item icon="shopping-cart" :href="route('orders.index')" :current="request()->routeIs('orders.*') || request()->routeIs('order-statuses.*')" wire:navigate>
+                    {{ __('Orders') }}
+                </flux:sidebar.item>
+                <flux:sidebar.item icon="truck" :href="route('shipping-items.index')" :current="request()->routeIs('shipping-items.*')" wire:navigate>
+                    {{ __('Verzendingen') }}
+                </flux:sidebar.item>
+                <flux:sidebar.item icon="cog-6-tooth" :href="route('settings-items.index')" :current="request()->routeIs('settings-items.*')" wire:navigate>
+                    {{ __('Settings') }}
+                </flux:sidebar.item>
             </flux:sidebar.nav>
 
             <flux:spacer />

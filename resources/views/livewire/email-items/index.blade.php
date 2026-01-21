@@ -41,7 +41,7 @@ new class extends Component {
                         ->orWhere('subject', 'like', "%{$this->search}%")
                         ->orWhere('content', 'like', "%{$this->search}%")
                 )
-                ->with('folder')
+                ->with('folder.colorScheme')
                 ->orderBy($this->sortField, $this->sortDirection)
                 ->paginate(10),
         ];
@@ -123,7 +123,9 @@ new class extends Component {
                             <flux:text class="text-sm">{{ Str::limit($emailItem->subject, 50) }}</flux:text>
                         </td>
                         <td class="px-6 py-4">
-                            <flux:badge>{{ $emailItem->folder->name }}</flux:badge>
+                            <span class="inline-flex items-center rounded px-3 py-1 text-sm font-medium {{ $emailItem->folder->colorScheme?->bg_class ?? 'bg-zinc-100 dark:bg-zinc-800' }} {{ $emailItem->folder->colorScheme?->text_class ?? 'text-zinc-900 dark:text-zinc-100' }}">
+                                {{ $emailItem->folder->name }}
+                            </span>
                         </td>
                         <td class="whitespace-nowrap px-6 py-4">
                             <flux:text class="text-sm text-zinc-500">{{ $emailItem->created_at->format('d M Y') }}</flux:text>

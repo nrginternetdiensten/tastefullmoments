@@ -22,10 +22,10 @@ class InvoiceLineFactory extends Factory
         $priceExc = $this->faker->randomFloat(2, 10, 500);
         $tax = InvoiceTax::inRandomOrder()->first() ?? InvoiceTax::factory()->create();
         $taxRate = $tax->percentage / 100;
-        
+
         $priceTax = round($priceExc * $taxRate, 2);
         $price = round($priceExc + $priceTax, 2);
-        
+
         $totalExc = round($priceExc * $quantity, 2);
         $totalTax = round($totalExc * $taxRate, 2);
         $total = round($totalExc + $totalTax, 2);

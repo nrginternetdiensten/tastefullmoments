@@ -9,10 +9,10 @@ new class extends Component {
     public ?string $account_id = null;
     public ?string $user_id = null;
     public ?string $status_id = null;
-    
+
     public string $accountSearch = '';
     public string $userSearch = '';
-    
+
     public array $lines = [];
 
     public function mount(?Invoice $invoice = null): void
@@ -23,7 +23,7 @@ new class extends Component {
             $this->account_id = $invoice->account_id ? (string) $invoice->account_id : null;
             $this->user_id = $invoice->user_id ? (string) $invoice->user_id : null;
             $this->status_id = $invoice->status_id ? (string) $invoice->status_id : null;
-            
+
             // Load existing lines
             $this->lines = $invoice->lines->map(fn($line) => [
                 'id' => $line->id,
@@ -33,13 +33,13 @@ new class extends Component {
                 'tax_id' => $line->tax_id ? (string) $line->tax_id : null,
             ])->toArray();
         }
-        
+
         // Always have at least one empty line
         if (empty($this->lines)) {
             $this->addLine();
         }
     }
-    
+
     public function addLine(): void
     {
         $this->lines[] = [
@@ -50,18 +50,18 @@ new class extends Component {
             'tax_id' => null,
         ];
     }
-    
+
     public function removeLine(int $index): void
     {
         unset($this->lines[$index]);
         $this->lines = array_values($this->lines);
-        
+
         // Keep at least one line
         if (empty($this->lines)) {
             $this->addLine();
         }
     }
-    
+
     public function updatedAccountId(): void
     {
         $this->user_id = null;
@@ -70,7 +70,7 @@ new class extends Component {
     public function save(): void
     {
         $this->authorize($this->invoice ? 'invoices.edit' : 'invoices.create');
-        
+
         $validated = $this->validate([
             'invoice_id' => ['required', 'string', 'max:255', $this->invoice ? 'unique:invoices,invoice_id,'.$this->invoice->id : 'unique:invoices,invoice_id'],
             'account_id' => ['nullable', 'exists:accounts,id'],
@@ -82,22 +82,22 @@ new class extends Component {
             'lines.*.price_exc' => ['required', 'numeric', 'min:0'],
             'lines.*.tax_id' => ['required', 'exists:invoice_taxes,id'],
         ]);
-        
+
         // Calculate totals
         $totalExc = 0;
         $totalTax = 0;
-        
+
         foreach ($validated['lines'] as $line) {
             $tax = InvoiceTax::find($line['tax_id']);
             $taxRate = $tax->percentage / 100;
-            
+
             $lineExc = $line['price_exc'] * $line['quantity'];
             $lineTax = $lineExc * $taxRate;
-            
+
             $totalExc += $lineExc;
             $totalTax += $lineTax;
         }
-        
+
         $invoiceData = [
             'invoice_id' => $validated['invoice_id'],
             'account_id' => $validated['account_id'],
@@ -111,28 +111,28 @@ new class extends Component {
         if ($this->invoice) {
             $this->invoice->update($invoiceData);
             $this->invoice->refresh();
-            
+
             // Delete removed lines
             $keptLineIds = collect($validated['lines'])->pluck('id')->filter();
             $this->invoice->lines()->whereNotIn('id', $keptLineIds)->delete();
         } else {
             $this->invoice = Invoice::create($invoiceData);
         }
-        
+
         // Save lines
         foreach ($validated['lines'] as $lineData) {
             $tax = InvoiceTax::find($lineData['tax_id']);
             $taxRate = $tax->percentage / 100;
-            
+
             $priceExc = $lineData['price_exc'];
             $priceTax = $priceExc * $taxRate;
             $price = $priceExc + $priceTax;
-            
+
             $quantity = $lineData['quantity'];
             $totalExc = $priceExc * $quantity;
             $totalTax = $totalExc * $taxRate;
             $total = $totalExc + $totalTax;
-            
+
             $lineSaveData = [
                 'name' => $lineData['name'],
                 'quantity' => $quantity,
@@ -144,7 +144,7 @@ new class extends Component {
                 'total_tax' => $totalTax,
                 'tax_id' => $lineData['tax_id'],
             ];
-            
+
             if (!empty($lineData['id'])) {
                 $this->invoice->lines()->where('id', $lineData['id'])->update($lineSaveData);
             } else {
@@ -160,7 +160,7 @@ new class extends Component {
     {
         $totalExc = 0;
         $totalTax = 0;
-        
+
         foreach ($this->lines as $line) {
             if (!empty($line['price_exc']) && !empty($line['quantity']) && !empty($line['tax_id'])) {
                 $tax = InvoiceTax::find($line['tax_id']);
@@ -172,7 +172,7 @@ new class extends Component {
                 }
             }
         }
-        
+
         return [
             'accounts' => Account::query()
                 ->when($this->accountSearch, fn($q) => $q->where('name', 'like', "%{$this->accountSearch}%"))
@@ -202,9 +202,21 @@ new class extends Component {
 }; ?>
 
 <div class="space-y-6">
-    <div>
-        <flux:heading size="xl">{{ $invoice ? __('Factuur bewerken') : __('Nieuwe factuur') }}</flux:heading>
-        <flux:subheading>{{ $invoice ? __('Bewerk een bestaande factuur') : __('Maak een nieuwe factuur aan') }}</flux:subheading>
+    <div class="flex items-center justify-between">
+        <div>
+            <flux:heading size="xl">{{ $invoice ? __('Factuur bewerken') : __('Nieuwe factuur') }}</flux:heading>
+            <flux:subheading>{{ $invoice ? __('Bewerk een bestaande factuur') : __('Maak een nieuwe factuur aan') }}</flux:subheading>
+        </div>
+
+        @if($invoice && $invoice->exists)
+            <div class="flex gap-2">
+                <a href="{{ route('invoices.download', $invoice) }}" class="inline-flex">
+                    <flux:button icon="arrow-down-tray" variant="ghost">
+                        {{ __('Download PDF') }}
+                    </flux:button>
+                </a>
+            </div>
+        @endif
     </div>
 
     <form wire:submit="save" class="space-y-6">
@@ -229,9 +241,9 @@ new class extends Component {
 
         <flux:field>
             <flux:label>{{ __('Gebruiker') }}</flux:label>
-            <flux:select 
-                wire:model.live="user_id" 
-                variant="combobox" 
+            <flux:select
+                wire:model.live="user_id"
+                variant="combobox"
                 placeholder="{{ __('Selecteer gebruiker') }}"
                 :filter="false"
                 :disabled="!$account_id"
@@ -277,33 +289,33 @@ new class extends Component {
                 @foreach($lines as $index => $line)
                     <div wire:key="line-{{ $index }}" class="grid grid-cols-12 gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
                         <div class="col-span-5">
-                            <flux:input 
-                                wire:model="lines.{{ $index }}.name" 
-                                placeholder="{{ __('Omschrijving') }}" 
+                            <flux:input
+                                wire:model="lines.{{ $index }}.name"
+                                placeholder="{{ __('Omschrijving') }}"
                             />
                             <flux:error name="lines.{{ $index }}.name" />
                         </div>
-                        
+
                         <div class="col-span-2">
-                            <flux:input 
-                                wire:model.live="lines.{{ $index }}.quantity" 
-                                type="number" 
+                            <flux:input
+                                wire:model.live="lines.{{ $index }}.quantity"
+                                type="number"
                                 min="1"
-                                placeholder="{{ __('Aantal') }}" 
+                                placeholder="{{ __('Aantal') }}"
                             />
                             <flux:error name="lines.{{ $index }}.quantity" />
                         </div>
-                        
+
                         <div class="col-span-2">
-                            <flux:input 
-                                wire:model.live="lines.{{ $index }}.price_exc" 
-                                type="number" 
+                            <flux:input
+                                wire:model.live="lines.{{ $index }}.price_exc"
+                                type="number"
                                 step="0.01"
-                                placeholder="{{ __('Prijs excl.') }}" 
+                                placeholder="{{ __('Prijs excl.') }}"
                             />
                             <flux:error name="lines.{{ $index }}.price_exc" />
                         </div>
-                        
+
                         <div class="col-span-2">
                             <flux:select wire:model.live="lines.{{ $index }}.tax_id" placeholder="{{ __('BTW') }}">
                                 @foreach($taxes as $tax)
@@ -312,16 +324,16 @@ new class extends Component {
                             </flux:select>
                             <flux:error name="lines.{{ $index }}.tax_id" />
                         </div>
-                        
+
                         <div class="col-span-1 flex items-start justify-end">
-                            <flux:button 
-                                size="sm" 
-                                wire:click="removeLine({{ $index }})" 
+                            <flux:button
+                                size="sm"
+                                wire:click="removeLine({{ $index }})"
                                 variant="danger"
                                 icon="trash"
                             />
                         </div>
-                        
+
                         @if(!empty($line['price_exc']) && !empty($line['quantity']) && !empty($line['tax_id']))
                             @php
                                 $tax = $taxes->firstWhere('id', $line['tax_id']);

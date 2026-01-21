@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -49,5 +50,23 @@ class Invoice extends Model
     public function lines(): HasMany
     {
         return $this->hasMany(InvoiceLine::class);
+    }
+
+    public function downloadPdf()
+    {
+        $pdf = Pdf::loadView('pdf.invoice', [
+            'invoice' => $this->load(['account', 'status', 'user', 'lines.tax']),
+        ]);
+
+        return $pdf->download("factuur-{$this->invoice_id}.pdf");
+    }
+
+    public function streamPdf()
+    {
+        $pdf = Pdf::loadView('pdf.invoice', [
+            'invoice' => $this->load(['account', 'status', 'user', 'lines.tax']),
+        ]);
+
+        return $pdf->stream("factuur-{$this->invoice_id}.pdf");
     }
 }

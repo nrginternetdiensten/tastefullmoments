@@ -3,5 +3,7 @@
         <livewire:accounts.form :account="$account" />
 
         <livewire:accounts.users :account="$account" />
+
+        <livewire:accounts.transactions :account="$account" />
     </div>
 </x-layouts.app>

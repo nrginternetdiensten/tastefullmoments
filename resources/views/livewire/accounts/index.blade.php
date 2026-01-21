@@ -29,7 +29,7 @@ new class extends Component {
     public function delete(Account $account): void
     {
         $this->authorize('accounts.delete');
-        
+
         $account->delete();
 
         $this->dispatch('account-deleted');
@@ -41,6 +41,9 @@ new class extends Component {
             'accounts' => Account::query()
                 ->when($this->search, fn($query) =>
                     $query->where('name', 'like', "%{$this->search}%")
+                        ->orWhere('company_name', 'like', "%{$this->search}%")
+                        ->orWhere('email_address', 'like', "%{$this->search}%")
+                        ->orWhere('city', 'like', "%{$this->search}%")
                 )
                 ->orderBy($this->sortBy, $this->sortDirection)
                 ->paginate(10),
@@ -82,10 +85,13 @@ new class extends Component {
                                 @endif
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                                {{ __('Balance') }}
+                                {{ __('Contact') }}
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                                {{ __('Credit Limit') }}
+                                {{ __('Plaats') }}
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                                {{ __('Balance') }}
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
                                 {{ __('Status') }}
@@ -105,13 +111,32 @@ new class extends Component {
                         @forelse($accounts as $account)
                             <tr wire:key="account-{{ $account->id }}" class="hover:bg-zinc-50 dark:hover:bg-zinc-800">
                                 <td class="whitespace-nowrap px-6 py-4">
-                                    <flux:text class="font-medium">{{ $account->name }}</flux:text>
+                                    <div>
+                                        <flux:text class="font-medium">{{ $account->name }}</flux:text>
+                                        @if($account->company_name && $account->company_name !== $account->name)
+                                            <flux:text class="text-xs text-zinc-500">{{ $account->company_name }}</flux:text>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4">
+                                    <div class="text-sm">
+                                        @if($account->email_address)
+                                            <flux:text class="block">{{ $account->email_address }}</flux:text>
+                                        @endif
+                                        @if($account->telephone_number)
+                                            <flux:text class="text-xs text-zinc-500">{{ $account->telephone_number }}</flux:text>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4">
+                                    @if($account->city)
+                                        <flux:text>{{ $account->city }}</flux:text>
+                                    @else
+                                        <flux:text class="text-zinc-400">-</flux:text>
+                                    @endif
                                 </td>
                                 <td class="whitespace-nowrap px-6 py-4">
                                     <flux:text>€ {{ number_format($account->balance_cents / 100, 2) }}</flux:text>
-                                </td>
-                                <td class="whitespace-nowrap px-6 py-4">
-                                    <flux:text>€ {{ number_format($account->credit_limit_cents / 100, 2) }}</flux:text>
                                 </td>
                                 <td class="whitespace-nowrap px-6 py-4">
                                     <flux:badge :variant="$account->wallet_status->value === 'active' ? 'success' : 'warning'">
@@ -143,7 +168,7 @@ new class extends Component {
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-12 text-center">
+                                <td colspan="7" class="px-6 py-12 text-center">
                                     <flux:text class="text-zinc-500">{{ __('No accounts found.') }}</flux:text>
                                 </td>
                             </tr>

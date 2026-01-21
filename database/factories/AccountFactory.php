@@ -18,6 +18,15 @@ class AccountFactory extends Factory
     {
         return [
             'name' => fake()->company(),
+            'company_name' => fake()->company(),
+            'street_name' => fake()->streetName(),
+            'house_number' => fake()->buildingNumber(),
+            'zipcode' => fake()->postcode(),
+            'city' => fake()->city(),
+            'email_address' => fake()->companyEmail(),
+            'telephone_number' => fake()->phoneNumber(),
+            'kvk' => fake()->numerify('########'),
+            'btw' => 'NL'.fake()->numerify('##########').'B01',
             'country_defaults' => [
                 'currency' => fake()->currencyCode(),
                 'timezone' => fake()->timezone(),
